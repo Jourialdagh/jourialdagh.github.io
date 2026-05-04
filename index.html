@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jouri Aldaghma | AI & Cybersecurity</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        :root {
+            --bg: #ece7f8;
+            --bg-card: #f8f5ff;
+            --bg-card-hover: #f0ecff;
+            --border: #d4c5ec;
+            --border-hover: #b090d5;
+            --text: #1a1438;
+            --text-dim: #3a2c68;
+            --text-muted: #8070a8;
+            --blue: #5068d8;
+            --blue-dim: #2838a8;
+            --blue-light: #90a0e8;
+            --blue-glow: rgba(80, 104, 216, 0.13);
+            --red: #d84a88;
+            --red-dim: #a02868;
+            --red-light: #efa0c8;
+            --red-glow: rgba(216, 74, 136, 0.11);
+            --font-display: 'Source Serif 4', serif;
+            --font-body: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(145deg, #ece7f8 0%, #f5e5f2 50%, #e5eaf8 100%);
+            background-attachment: fixed;
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* Scroll progress bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--blue), var(--red));
+            z-index: 10001;
+            transition: width 0.08s linear;
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* Cursor dot */
+        .cursor-dot {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.1s, background 0.2s;
+            mix-blend-mode: multiply;
+        }
+        .cursor-trail {
+            position: fixed;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--blue-light);
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        /* Ripple */
+        @keyframes rippleAnim {
+            from { transform: scale(0); opacity: 1; }
+            to { transform: scale(2.5); opacity: 0; }
+        }
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(66,120,216,0.18) 0%, transparent 70%);
+            transform: scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            pointer-events: none;
+        }
+
+        /* Neural network canvas */
+        #neural-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            opacity: 0.45;
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed;
+            top: 3px;
+            left: 0; right: 0;
+            z-index: 999;
+            padding: 1.2rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(236, 231, 248, 0.72);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.4s, background 0.4s;
+        }
+        nav.scrolled {
+            border-bottom: 1px solid var(--border);
+            background: rgba(236, 231, 248, 0.94);
+        }
+        .logo {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: var(--blue);
+            letter-spacing: -0.03em;
+        }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0;
+            width: 0; height: 1.5px;
+            background: linear-gradient(90deg, var(--blue), var(--red));
+            transition: width 0.3s;
+        }
+        .nav-links a:hover { color: var(--blue); }
+        .nav-links a:hover::after { width: 100%; }
+        .hamburger { display: none; cursor: pointer; color: var(--text-muted); font-size: 1.4rem; }
+
+        /* ===== LAYOUT ===== */
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 2.5rem; position: relative; z-index: 1; }
+
+        section {
+            padding: 9rem 0;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        section.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-top: 5rem;
+            padding-bottom: 6rem;
+            opacity: 1;
+            transform: none;
+            position: relative;
+        }
+        .hero-label {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--blue);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .hero-label .line { width: 40px; height: 1px; background: var(--blue-light); }
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: clamp(3rem, 7vw, 5.5rem);
+            font-weight: 700;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, var(--blue), var(--red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero-desc {
+            font-size: 1.15rem;
+            color: var(--text-dim);
+            max-width: 600px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+        .hero-links { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+        .hero-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.7rem 1.4rem;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+            background: var(--bg-card);
+            box-shadow: 0 2px 8px rgba(66,120,216,0.06);
+        }
+        .hero-links a:hover {
+            border-color: var(--blue);
+            color: var(--blue);
+            background: var(--blue-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(66,120,216,0.12);
+        }
+        .hero-links a.primary {
+            background: linear-gradient(135deg, var(--blue), #6090ee);
+            color: #fff;
+            border-color: transparent;
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(66,120,216,0.25);
+        }
+        .hero-links a.primary:hover {
+            background: linear-gradient(135deg, var(--blue-dim), var(--blue));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(66,120,216,0.32);
+        }
+
+        /* Scroll indicator */
+        .scroll-hint {
+            align-self: center;
+            margin-top: auto;
+            padding-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            animation: bobble 2s ease-in-out infinite;
+        }
+        @keyframes bobble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* ===== SECTION HEADERS ===== */
+        .section-header { margin-bottom: 3.5rem; }
+        .section-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--blue);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .section-label .line { width: 30px; height: 1px; background: var(--blue-light); }
+        .section-header h2 {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+        .section-header p { color: var(--text-muted); font-size: 0.95rem; font-weight: 300; }
+
+        /* ===== ABOUT ===== */
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+        .about-text { font-size: 1rem; color: var(--text-dim); line-height: 1.8; font-weight: 300; }
+        .about-text p + p { margin-top: 1.2rem; }
+        .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 2px 12px rgba(66,120,216,0.05);
+        }
+        .stat-card:hover {
+            border-color: var(--blue);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(66,120,216,0.12);
+        }
+        .stat-num {
+            font-family: var(--font-display);
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--blue), var(--red));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+
+        /* ===== EDUCATION ===== */
+        .edu-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+        }
+        .edu-card:hover { border-color: var(--border-hover); transform: translateX(6px); box-shadow: 0 6px 24px rgba(66,120,216,0.09); }
+        .edu-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            background: var(--blue-glow);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--blue); font-size: 1.1rem; flex-shrink: 0;
+        }
+        .edu-card h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .edu-card .school { color: var(--text-dim); font-size: 0.9rem; font-weight: 300; }
+        .edu-card .concentration { color: var(--blue); font-size: 0.8rem; font-weight: 500; margin-top: 0.3rem; }
+
+        /* ===== HONORS ===== */
+        .honors-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
+        .honor-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .honor-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--red));
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+        .honor-card:hover::before { transform: scaleX(1); }
+        .honor-card:hover { border-color: var(--border-hover); box-shadow: 0 16px 48px rgba(66,120,216,0.14); }
+        .honor-card .icon { font-size: 1.5rem; color: var(--blue); margin-bottom: 1rem; }
+        .honor-card h3 { font-family: var(--font-display); font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+        .honor-card p { font-size: 0.82rem; color: var(--text-muted); font-weight: 300; line-height: 1.5; }
+        .honor-card .from { font-size: 0.72rem; color: var(--red-dim); font-weight: 500; margin-top: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+        /* ===== RESEARCH ===== */
+        .research-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .research-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.4rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(66,120,216,0.04);
+        }
+        .research-card::after {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--blue), var(--red));
+            transform: scaleY(0);
+            transition: transform 0.3s;
+            border-radius: 0 2px 2px 0;
+        }
+        .research-card:hover::after { transform: scaleY(1); }
+        .research-card:hover { border-color: var(--border-hover); background: var(--bg-card-hover); transform: translateX(6px); box-shadow: 0 6px 24px rgba(66,120,216,0.09); }
+        .research-card .r-icon {
+            width: 38px; height: 38px;
+            border-radius: 8px;
+            background: var(--blue-glow);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--blue); flex-shrink: 0; font-size: 0.9rem;
+        }
+        .research-card h3 { font-family: var(--font-body); font-size: 0.92rem; font-weight: 500; line-height: 1.4; }
+        .research-card p { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; font-weight: 300; }
+        .research-card .badge {
+            background: linear-gradient(135deg, var(--blue), var(--red));
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .research-card .arrow { color: var(--text-muted); margin-left: auto; transition: transform 0.3s, color 0.3s; flex-shrink: 0; }
+        .research-card:hover .arrow { transform: translateX(4px); color: var(--blue); }
+
+        /* ===== PROJECTS ===== */
+        .projects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .project-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .project-card:hover { border-color: var(--blue-light); box-shadow: 0 16px 48px rgba(66,120,216,0.13); }
+        .project-card .p-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .project-card .p-icon {
+            width: 40px; height: 40px;
+            border-radius: 8px;
+            background: var(--blue-glow);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--blue); font-size: 1rem;
+        }
+        .project-card .p-link { color: var(--text-muted); font-size: 0.85rem; transition: color 0.3s; }
+        .project-card:hover .p-link { color: var(--blue); }
+        .project-card h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.3; }
+        .project-card .p-desc { font-size: 0.85rem; color: var(--text-muted); font-weight: 300; line-height: 1.6; margin-bottom: 1rem; }
+        .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+        .tag {
+            font-family: var(--font-mono);
+            background: rgba(66, 120, 216, 0.08);
+            color: var(--blue-dim);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.68rem;
+            font-weight: 500;
+            border: 1px solid rgba(66, 120, 216, 0.15);
+        }
+
+        /* ===== LABS ===== */
+        .labs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+        .lab-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.8rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+        .lab-card:hover { border-color: var(--border-hover); box-shadow: 0 12px 36px rgba(66,120,216,0.1); }
+        .lab-card .lab-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .lab-card h3 { font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; margin-bottom: 0.75rem; }
+        .lab-card ul { list-style: none; margin-bottom: 1rem; }
+        .lab-card li { font-size: 0.8rem; color: var(--text-dim); padding: 0.3rem 0; padding-left: 1rem; position: relative; font-weight: 300; line-height: 1.5; }
+        .lab-card li::before { content: '▹'; position: absolute; left: 0; color: var(--blue); }
+        .lab-tools { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); }
+        .lab-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+            font-size: 0.78rem;
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: gap 0.3s, color 0.3s;
+        }
+        .lab-link:hover { gap: 0.7rem; color: var(--blue-dim); }
+
+        /* ===== SKILLS ===== */
+        .skills-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2rem; }
+        .skill-group {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+        }
+        .skill-group:hover { border-color: var(--blue-light); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(66,120,216,0.1); }
+        .skill-group h3 { font-family: var(--font-mono); font-size: 0.65rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; font-weight: 600; }
+        .skill-group .skill-items { display: flex; flex-direction: column; gap: 0.5rem; }
+        .skill-group .skill-item { font-size: 0.82rem; color: var(--text-dim); font-weight: 400; }
+
+        /* ===== CONTACT ===== */
+        .contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+        .contact-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .contact-card:hover { border-color: var(--blue); transform: translateY(-6px); box-shadow: 0 18px 48px rgba(66,120,216,0.14); }
+        .contact-card .c-icon { font-size: 1.5rem; color: var(--blue); margin-bottom: 1rem; transition: color 0.3s; }
+        .contact-card:hover .c-icon { color: var(--red); }
+        .contact-card h3 { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+        .contact-card p { font-size: 0.85rem; color: var(--text-dim); font-weight: 400; }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            position: relative; z-index: 1;
+        }
+
+        /* ===== CV BUTTON ===== */
+        .cv-section { text-align: center; padding: 4rem 0; }
+        .cv-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.9rem 2rem;
+            border: 1.5px solid var(--blue);
+            border-radius: 10px;
+            color: var(--blue);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            background: var(--bg-card);
+        }
+        .cv-btn:hover {
+            background: var(--blue);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(66,120,216,0.22);
+        }
+
+        /* ===== THE CAT ===== */
+        #cat-container {
+            position: fixed;
+            bottom: 20px; right: 30px;
+            z-index: 9999;
+            pointer-events: none;
+            width: 100px; height: 100px;
+        }
+        #cat-svg { width: 100%; height: 100%; filter: drop-shadow(0 4px 14px rgba(66,120,216,0.18)); }
+        @keyframes blink {
+            0%, 95%, 100% { transform: scaleY(1); }
+            97% { transform: scaleY(0.05); }
+        }
+        .cat-eye { animation: blink 4s ease-in-out infinite; transform-origin: center; }
+        @keyframes tailWag {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+        #cat-tail { transform-origin: 70px 65px; animation: tailWag 3s ease-in-out infinite; }
+        @keyframes purr {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-0.5px); }
+            75% { transform: translateY(0.5px); }
+        }
+        #cat-container.purring #cat-svg { animation: purr 0.15s ease-in-out infinite; }
+        #cat-bubble {
+            position: absolute;
+            top: -45px; left: -60px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--blue);
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            box-shadow: 0 4px 16px rgba(66,120,216,0.1);
+        }
+        #cat-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -6px; right: 20px;
+            width: 0; height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid var(--border);
+        }
+        #cat-container.purring #cat-bubble { opacity: 1; transform: translateY(0); }
+
+        /* ===== FLOATING SHAPES (hero deco) ===== */
+        .hero-deco {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .hero-deco-1 {
+            width: 320px; height: 320px;
+            right: -80px; top: 15%;
+            background: radial-gradient(circle, rgba(66,120,216,0.09) 0%, transparent 70%);
+            animation: floatDeco 8s ease-in-out infinite;
+        }
+        .hero-deco-2 {
+            width: 200px; height: 200px;
+            right: 120px; top: 40%;
+            background: radial-gradient(circle, rgba(232,74,112,0.07) 0%, transparent 70%);
+            animation: floatDeco 6s ease-in-out infinite reverse;
+        }
+        @keyframes floatDeco {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.04); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .about-grid { grid-template-columns: 1fr; }
+            .honors-grid { grid-template-columns: 1fr 1fr; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .labs-grid { grid-template-columns: 1fr; }
+            .skills-container { grid-template-columns: repeat(3, 1fr); }
+            .contact-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 768px) {
+            nav { padding: 1rem 1.5rem; }
+            .nav-links { display: none; }
+            nav.nav-active .nav-links {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                top: 60px; left: 0; right: 0;
+                background: rgba(236, 231, 248, 0.97);
+                padding: 1.5rem;
+                border-bottom: 1px solid var(--border);
+                gap: 1rem;
+            }
+            .hamburger { display: block; }
+            .container { padding: 0 1.5rem; }
+            .hero h1 { font-size: 2.5rem; }
+            .honors-grid { grid-template-columns: 1fr; }
+            .skills-container { grid-template-columns: 1fr 1fr; }
+            .contact-grid { grid-template-columns: 1fr; }
+            section { padding: 5rem 0; }
+            #cat-container { bottom: 10px; right: 15px; width: 70px; height: 70px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="scroll-progress"></div>
+<canvas id="neural-bg"></canvas>
+<div class="cursor-dot" id="cursor-dot"></div>
+
+<!-- ===== CAT ===== -->
+<div id="cat-container">
+    <div id="cat-bubble">meow~ ✨</div>
+    <svg id="cat-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="72" rx="28" ry="22" fill="#e8922d"/>
+        <ellipse cx="50" cy="72" rx="25" ry="19" fill="#f5a623"/>
+        <path d="M35 63 Q50 58 65 63" stroke="#e8922d" stroke-width="1.5" fill="none"/>
+        <path d="M33 70 Q50 65 67 70" stroke="#e8922d" stroke-width="1.5" fill="none"/>
+        <path d="M34 77 Q50 72 66 77" stroke="#e8922d" stroke-width="1.5" fill="none"/>
+        <circle cx="50" cy="42" r="20" fill="#f5a623"/>
+        <circle cx="50" cy="44" r="17" fill="#f9b94a"/>
+        <polygon points="32,30 26,10 42,26" fill="#f5a623"/>
+        <polygon points="34,28 29,14 41,26" fill="#ffcf7a"/>
+        <polygon points="68,30 74,10 58,26" fill="#f5a623"/>
+        <polygon points="66,28 71,14 59,26" fill="#ffcf7a"/>
+        <polygon points="34,27 30,16 40,26" fill="#f0a0a0"/>
+        <polygon points="66,27 70,16 60,26" fill="#f0a0a0"/>
+        <g class="cat-eye" id="left-eye-group">
+            <ellipse cx="42" cy="40" rx="5" ry="5.5" fill="white"/>
+            <circle id="left-pupil" cx="42" cy="40" r="2.8" fill="#2d2d2d"/>
+            <circle cx="40.5" cy="38.5" r="1" fill="white"/>
+        </g>
+        <g class="cat-eye" id="right-eye-group">
+            <ellipse cx="58" cy="40" rx="5" ry="5.5" fill="white"/>
+            <circle id="right-pupil" cx="58" cy="40" r="2.8" fill="#2d2d2d"/>
+            <circle cx="56.5" cy="38.5" r="1" fill="white"/>
+        </g>
+        <polygon points="50,46 48,48 52,48" fill="#f0a0a0"/>
+        <path d="M48,49 Q50,52 52,49" stroke="#c47a2a" stroke-width="0.8" fill="none"/>
+        <path d="M46,49 Q48,48 49,49" stroke="#c47a2a" stroke-width="0.6" fill="none"/>
+        <path d="M51,49 Q52,48 54,49" stroke="#c47a2a" stroke-width="0.6" fill="none"/>
+        <line x1="18" y1="43" x2="38" y2="45" stroke="#d4a04a" stroke-width="0.6"/>
+        <line x1="16" y1="48" x2="37" y2="48" stroke="#d4a04a" stroke-width="0.6"/>
+        <line x1="20" y1="53" x2="38" y2="50" stroke="#d4a04a" stroke-width="0.6"/>
+        <line x1="82" y1="43" x2="62" y2="45" stroke="#d4a04a" stroke-width="0.6"/>
+        <line x1="84" y1="48" x2="63" y2="48" stroke="#d4a04a" stroke-width="0.6"/>
+        <line x1="80" y1="53" x2="62" y2="50" stroke="#d4a04a" stroke-width="0.6"/>
+        <ellipse cx="38" cy="90" rx="8" ry="5" fill="#f5a623"/>
+        <ellipse cx="62" cy="90" rx="8" ry="5" fill="#f5a623"/>
+        <ellipse cx="38" cy="90" rx="6" ry="3.5" fill="#ffcf7a"/>
+        <ellipse cx="62" cy="90" rx="6" ry="3.5" fill="#ffcf7a"/>
+        <circle cx="34" cy="90" r="1.2" fill="#f0a0a0"/>
+        <circle cx="37" cy="88.5" r="1.2" fill="#f0a0a0"/>
+        <circle cx="40" cy="90" r="1.2" fill="#f0a0a0"/>
+        <circle cx="58" cy="90" r="1.2" fill="#f0a0a0"/>
+        <circle cx="61" cy="88.5" r="1.2" fill="#f0a0a0"/>
+        <circle cx="64" cy="90" r="1.2" fill="#f0a0a0"/>
+        <g id="cat-tail">
+            <path d="M78,70 Q92,55 88,38 Q86,30 80,32" stroke="#f5a623" stroke-width="6" fill="none" stroke-linecap="round"/>
+            <path d="M78,70 Q92,55 88,38 Q86,30 80,32" stroke="#e8922d" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </g>
+        <ellipse cx="50" cy="58" rx="10" ry="6" fill="#ffcf7a"/>
+    </svg>
+</div>
+
+<!-- ===== NAV ===== -->
+<nav class="container">
+    <div class="logo">JA</div>
+    <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#education">Education</a>
+        <a href="#honors">Honors</a>
+        <a href="#research">Research</a>
+        <a href="#projects">Projects</a>
+        <a href="#labs">Labs</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+    </div>
+    <div class="hamburger" onclick="document.querySelector('nav').classList.toggle('nav-active')">
+        <i class="fas fa-bars"></i>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="container hero">
+    <div class="hero-deco hero-deco-1"></div>
+    <div class="hero-deco hero-deco-2"></div>
+    <div class="hero-label"><span class="line"></span> AI &amp; Cybersecurity Researcher</div>
+    <h1>Jouri<br><span class="highlight">Aldaghma</span></h1>
+    <p class="hero-desc">Computer Science graduate specializing in Artificial Intelligence. Building robust AI systems at the intersection of machine learning and cybersecurity.</p>
+    <div class="hero-links">
+        <a href="mailto:jouri.w2004@gmail.com" class="primary"><i class="fas fa-envelope"></i> Get in Touch</a>
+        <a href="https://github.com/Jourialdagh" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+        <a href="https://www.linkedin.com/in/jouri-aldaghma-b7a8b8307/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
+        <a href="https://wa.me/966555886994" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+    </div>
+    <div class="scroll-hint">
+        <span>Scroll</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section id="about" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">01</span> <span class="line"></span> About</div>
+        <h2>Background &amp; Research Interests</h2>
+    </div>
+    <div class="about-grid">
+        <div class="about-text">
+            <p>I am a Computer Science graduate with a concentration in Artificial Intelligence, driven by a deep commitment to advancing the intersection of AI and Cybersecurity. My research focuses on adversarial machine learning, IoT security, and the development of robust AI systems capable of defending against sophisticated cyber threats.</p>
+            <p>With award-winning research in smart city IoT security and hands-on experience in building AI-driven defense systems, I bring both theoretical rigor and practical expertise to complex security challenges. I am actively seeking research opportunities and internships where I can contribute to impactful, security-focused AI innovations.</p>
+        </div>
+        <div class="about-stats">
+            <div class="stat-card" data-target="9" data-suffix="+">
+                <div class="stat-num" data-count="9" data-suffix="+">9+</div>
+                <div class="stat-label">Published Papers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num" data-count="6" data-suffix="+">6+</div>
+                <div class="stat-label">Tech Projects</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">~98%</div>
+                <div class="stat-label">IoT Detection Acc.</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-num">1st</div>
+                <div class="stat-label">Place UGRF#5</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== EDUCATION ===== -->
+<section id="education" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">02</span> <span class="line"></span> Education</div>
+        <h2>Academic Background</h2>
+    </div>
+    <div class="edu-card">
+        <div class="edu-icon"><i class="fas fa-graduation-cap"></i></div>
+        <div>
+            <h3>Bachelor of Science in Computer Science</h3>
+            <div class="school">Effat University</div>
+            <div class="concentration">AI Concentration</div>
+        </div>
+    </div>
+    <div class="edu-card">
+        <div class="edu-icon"><i class="fas fa-school"></i></div>
+        <div>
+            <h3>High School Diploma</h3>
+            <div class="school">Edugate International School</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== HONORS ===== -->
+<section id="honors" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">03</span> <span class="line"></span> Honors</div>
+        <h2>Recognition &amp; Achievements</h2>
+    </div>
+    <div class="honors-grid">
+        <div class="honor-card">
+            <div class="icon"><i class="fas fa-trophy"></i></div>
+            <h3>1st Place — UGRF#5</h3>
+            <p>Awarded for "Analyzing Security Threats and Vulnerabilities in IoT Systems within Smart Cities."</p>
+            <div class="from">Effat University</div>
+        </div>
+        <div class="honor-card">
+            <div class="icon"><i class="fas fa-star"></i></div>
+            <h3>Dean's List</h3>
+            <p>Recognized for academic excellence across multiple years.</p>
+            <div class="from">Effat University</div>
+        </div>
+        <div class="honor-card">
+            <div class="icon"><i class="fas fa-award"></i></div>
+            <h3>Merit Scholarship — 50%</h3>
+            <p>Awarded based on outstanding academic performance.</p>
+            <div class="from">Effat University</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== RESEARCH ===== -->
+<section id="research" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">04</span> <span class="line"></span> Research</div>
+        <h2>Published Papers</h2>
+        <p>Academic work in AI security, IoT, and adversarial ML</p>
+    </div>
+    <div class="research-list">
+        <a href="https://www.researchgate.net/publication/399208231_Analyzing_Security_Threats_and_Vulnerabilities_in_IoT_Systems_within_Smart_Cities" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-file-alt"></i></div>
+            <div>
+                <h3>Analyzing Security Threats and Vulnerabilities in IoT Systems within Smart Cities</h3>
+                <p>IoT security threats in smart city environments · May 2024</p>
+            </div>
+            <span class="badge">Award-Winning</span>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/publication/390915833_Advancing_Cybersecurity_with_Digital_Twin_Technology" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-shield-alt"></i></div>
+            <div>
+                <h3>Advancing Cybersecurity with Digital Twin Technology</h3>
+                <p>Digital twin framework for proactive cyber defense · April 2025</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/publication/399118635_A_Multi-Layered_Adaptive_Framework_for_Adversarially_Robust_AI_in_Cybersecurity_Applications" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-lock"></i></div>
+            <div>
+                <h3>A Multi-Layered Adaptive Framework for Adversarially Robust AI in Cybersecurity</h3>
+                <p>Adversarial ML threats and adaptive defense mechanisms · December 2025</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/publication/387682691_Securing_the_Internet_of_Things_Addressing_Cross-Layer_Vulnerabilities" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-network-wired"></i></div>
+            <div>
+                <h3>Securing the Internet of Things: Addressing Cross-Layer Vulnerabilities</h3>
+                <p>Cross-layer IoT security analysis and threat mitigation · January 2025</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/publication/387682396_Wearables_and_Augmented_Humans_Ethical_and_Regulatory_Implications" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-user-shield"></i></div>
+            <div>
+                <h3>Wearables and Augmented Humans: Ethical and Regulatory Implications</h3>
+                <p>Ethics, privacy, and regulatory considerations for wearable tech · January 2025</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/publication/383859972_Advancements_in_Kernel_Concurrency_Leveraging_Machine_Learning_for_OS_Innovation" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-microchip"></i></div>
+            <div>
+                <h3>Advancements in Kernel Concurrency: Leveraging ML for OS Innovation</h3>
+                <p>ML techniques for OS kernel concurrency optimization · September 2024</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-heartbeat"></i></div>
+            <div>
+                <h3>AI-Driven Innovations in Healthcare: Advancing Smart Diagnostics and Treatment</h3>
+                <p>AI-powered diagnostic systems and clinical applications · January 2025</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-code"></i></div>
+            <div>
+                <h3>Security Mechanisms in Modern Software Systems</h3>
+                <p>Comprehensive review of contemporary cybersecurity mechanisms · May 2025</p>
+            </div>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="research-card">
+            <div class="r-icon"><i class="fas fa-database"></i></div>
+            <div>
+                <h3>An Adaptive Adversarial-Resilient Big Data Pipeline for Cyber Threat Intelligence Classification</h3>
+                <p>A3L-BD pipeline on Apache Spark for adversarially robust CTI processing · May 2026</p>
+            </div>
+            <span class="badge" style="background: linear-gradient(135deg,#4278d8,#e84a70)">Latest</span>
+            <span class="arrow"><i class="fas fa-arrow-right"></i></span>
+        </a>
+    </div>
+</section>
+
+<!-- ===== PROJECTS ===== -->
+<section id="projects" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">05</span> <span class="line"></span> Projects</div>
+        <h2>Technical Work</h2>
+        <p>Implementations and hands-on engineering</p>
+    </div>
+    <div class="projects-grid">
+        <a href="https://github.com/Jourialdagh/SecureTwin-Cybersecurity-Digital-Twin-Platform" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-shield-virus"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>SecureTwin — Cybersecurity Digital Twin Platform</h3>
+            <p class="p-desc">Cybersecurity testing platform with digital twin network modeling, real-time attack simulation, and compliance tracking.</p>
+            <div class="tags">
+                <span class="tag">Python</span><span class="tag">ML</span><span class="tag">Digital Twin</span><span class="tag">GDPR</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/Iot-Cyber-Attack-Detection-Using-ML" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-wifi"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>IoT Cyber Attack Detection Using ML</h3>
+            <p class="p-desc">ML-based Intrusion Detection System for IoT networks achieving ~98% detection accuracy.</p>
+            <div class="tags">
+                <span class="tag">Python</span><span class="tag">PCA</span><span class="tag">SMOTE</span><span class="tag">XGBoost</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/BigData-Adversarial-Robustness-CTI" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-database"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>BigData Adversarial Robustness CTI Pipeline</h3>
+            <p class="p-desc">Apache Spark pipeline extending adversarial robustness to the data engineering layer for CTI classification at scale.</p>
+            <div class="tags">
+                <span class="tag">Apache Spark</span><span class="tag">Python</span><span class="tag">A3L-BD</span><span class="tag">CTI</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/Adversarial-Robustness-CTI" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-bug"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>Adversarial Robustness in Cyber Threat Intelligence</h3>
+            <p class="p-desc">DistilBERT fine-tuning with FGSM adversarial training for robust threat intelligence classification.</p>
+            <div class="tags">
+                <span class="tag">TensorFlow</span><span class="tag">DistilBERT</span><span class="tag">FGSM</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/autoelite-car-catalogue" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-car"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>AutoElite — Premium Car Catalogue</h3>
+            <p class="p-desc">Fully responsive car catalogue with 20+ vehicles, quote calculator, vehicle comparison, and dealership map.</p>
+            <div class="tags">
+                <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JavaScript</span><span class="tag">REST APIs</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/CS3072_Final_Project" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-chart-line"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>Predicting Student Performance Using ML</h3>
+            <p class="p-desc">Regression models for educational outcome prediction with comprehensive data preprocessing.</p>
+            <div class="tags">
+                <span class="tag">Scikit-learn</span><span class="tag">Pandas</span><span class="tag">EDA</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/Educational-institution-network" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-network-wired"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>Network Design for Educational Institution</h3>
+            <p class="p-desc">Multi-campus secure network with VLAN segmentation, routing, and access control.</p>
+            <div class="tags">
+                <span class="tag">Cisco</span><span class="tag">VLAN</span><span class="tag">Routing</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/Virtual-Art-Gallery" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-palette"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>Virtual Art Gallery — Museo</h3>
+            <p class="p-desc">Full-stack web application with responsive UI, CRUD operations, and admin dashboard.</p>
+            <div class="tags">
+                <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">PHP</span><span class="tag">SQL</span>
+            </div>
+        </a>
+    </div>
+</section>
+
+<!-- ===== LABS ===== -->
+<section id="labs" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">06</span> <span class="line"></span> Labs</div>
+        <h2>Practical Work</h2>
+        <p>Hands-on technical experience</p>
+    </div>
+    <div class="labs-grid">
+        <div class="lab-card">
+            <div class="lab-top"><div class="edu-icon"><i class="fas fa-brain"></i></div></div>
+            <h3>Machine Learning Labs</h3>
+            <ul>
+                <li>Linear Regression: NO2 pollution prediction from traffic &amp; atmospheric data</li>
+                <li>Logistic Regression: Diabetes patient classification with StandardScaler</li>
+            </ul>
+            <div class="lab-tools">Python · Scikit-learn · Pandas · NumPy · Matplotlib</div>
+            <a href="https://github.com/Jourialdagh/Machine-Learning-Labs" target="_blank" class="lab-link"><i class="fab fa-github"></i> View on GitHub <i class="fas fa-arrow-right" style="font-size:0.65rem"></i></a>
+        </div>
+        <div class="lab-card">
+            <div class="lab-top"><div class="edu-icon"><i class="fas fa-language"></i></div></div>
+            <h3>NLP &amp; Text Mining Labs</h3>
+            <ul>
+                <li>Pandas EDA on ~6,000 Goodreads books: cleaning, parsing, visualization</li>
+                <li>Regex extraction of products/prices from e-commerce reviews</li>
+                <li>Data-centric vs model-centric AI: SGD vs Naive Bayes</li>
+                <li>End-to-end ML pipeline with Haversine feature engineering</li>
+            </ul>
+            <div class="lab-tools">Python · NLTK · Regex · TF-IDF · Scikit-learn</div>
+            <a href="https://github.com/Jourialdagh/NLP-Text-Mining-Labs" target="_blank" class="lab-link"><i class="fab fa-github"></i> View on GitHub <i class="fas fa-arrow-right" style="font-size:0.65rem"></i></a>
+        </div>
+        <div class="lab-card">
+            <div class="lab-top"><div class="edu-icon"><i class="fas fa-robot"></i></div></div>
+            <h3>Advanced AI Labs</h3>
+            <ul>
+                <li>Data science lifecycle: full pipeline from ingestion to insight</li>
+                <li>Weather prediction on ~96K rows: preprocessing, regression</li>
+                <li>PyTorch neural networks with Dropout, early stopping, LR scheduling</li>
+            </ul>
+            <div class="lab-tools">Python · PyTorch · Scikit-learn · Pandas · SciPy</div>
+            <a href="https://github.com/Jourialdagh/Advanced-AI-Labs" target="_blank" class="lab-link"><i class="fab fa-github"></i> View on GitHub <i class="fas fa-arrow-right" style="font-size:0.65rem"></i></a>
+        </div>
+        <div class="lab-card">
+            <div class="lab-top"><div class="edu-icon"><i class="fas fa-server"></i></div></div>
+            <h3>Big Data Analytics Labs</h3>
+            <ul>
+                <li>Hadoop 3.3.6 &amp; HDFS setup: single-node cluster, Shakespeare analysis</li>
+                <li>HDFS: fault tolerance, block size experiments, hospital data lake</li>
+                <li>MapReduce with Python: word count, inverted index, chained jobs</li>
+                <li>Real-world analysis: 51K-row Global Superstore CSV</li>
+            </ul>
+            <div class="lab-tools">Hadoop · HDFS · MapReduce · YARN · Python · Linux</div>
+            <a href="https://github.com/Jourialdagh/Big-Data-Analytics-CS4074" target="_blank" class="lab-link"><i class="fab fa-github"></i> View on GitHub <i class="fas fa-arrow-right" style="font-size:0.65rem"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SKILLS ===== -->
+<section id="skills" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">07</span> <span class="line"></span> Skills</div>
+        <h2>Technical Expertise</h2>
+    </div>
+    <div class="skills-container">
+        <div class="skill-group">
+            <h3>Programming</h3>
+            <div class="skill-items">
+                <span class="skill-item">Python</span>
+                <span class="skill-item">C++</span>
+                <span class="skill-item">Java</span>
+            </div>
+        </div>
+        <div class="skill-group">
+            <h3>AI / ML</h3>
+            <div class="skill-items">
+                <span class="skill-item">Machine Learning</span>
+                <span class="skill-item">Deep Learning</span>
+                <span class="skill-item">NLP</span>
+                <span class="skill-item">Transformers</span>
+                <span class="skill-item">Adversarial ML</span>
+            </div>
+        </div>
+        <div class="skill-group">
+            <h3>Cybersecurity</h3>
+            <div class="skill-items">
+                <span class="skill-item">IDS</span>
+                <span class="skill-item">IoT Security</span>
+                <span class="skill-item">Threat Modeling</span>
+                <span class="skill-item">Secure AI</span>
+            </div>
+        </div>
+        <div class="skill-group">
+            <h3>Data</h3>
+            <div class="skill-items">
+                <span class="skill-item">Pandas</span>
+                <span class="skill-item">NumPy</span>
+                <span class="skill-item">Matplotlib</span>
+                <span class="skill-item">Apache Spark</span>
+            </div>
+        </div>
+        <div class="skill-group">
+            <h3>Tools</h3>
+            <div class="skill-items">
+                <span class="skill-item">Git</span>
+                <span class="skill-item">Jupyter</span>
+                <span class="skill-item">Cisco</span>
+                <span class="skill-item">Linux</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CV ===== -->
+<section class="container cv-section">
+    <a href="your-cv.pdf" class="cv-btn" download>
+        <i class="fas fa-download"></i> Download CV
+    </a>
+</section>
+
+<!-- ===== CONTACT ===== -->
+<section id="contact" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">08</span> <span class="line"></span> Contact</div>
+        <h2>Get in Touch</h2>
+        <p>Let's connect and build something impactful</p>
+    </div>
+    <div class="contact-grid">
+        <a href="mailto:jouri.w2004@gmail.com" class="contact-card">
+            <div class="c-icon"><i class="fas fa-envelope"></i></div>
+            <h3>Email</h3>
+            <p>jouri.w2004@gmail.com</p>
+        </a>
+        <a href="https://wa.me/966555886994" target="_blank" class="contact-card">
+            <div class="c-icon"><i class="fab fa-whatsapp"></i></div>
+            <h3>WhatsApp</h3>
+            <p>+966 55 588 6994</p>
+        </a>
+        <a href="https://github.com/Jourialdagh" target="_blank" class="contact-card">
+            <div class="c-icon"><i class="fab fa-github"></i></div>
+            <h3>GitHub</h3>
+            <p>Jourialdagh</p>
+        </a>
+        <a href="https://www.linkedin.com/in/jouri-aldaghma-b7a8b8307/" target="_blank" class="contact-card">
+            <div class="c-icon"><i class="fab fa-linkedin"></i></div>
+            <h3>LinkedIn</h3>
+            <p>Jouri Aldaghma</p>
+        </a>
+    </div>
+</section>
+
+<footer class="container">
+    &copy; 2026 Jouri Aldaghma. All rights reserved.
+</footer>
+
+<script>
+// ===== NEURAL NETWORK BACKGROUND (blue palette) =====
+const canvas = document.getElementById('neural-bg');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+class Particle {
+    constructor() { this.reset(); }
+    reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.35;
+        this.vy = (Math.random() - 0.5) * 0.35;
+        this.radius = Math.random() * 1.8 + 0.5;
+        this.opacity = Math.random() * 0.45 + 0.1;
+        // Mix purple and pink particles
+        this.color = Math.random() > 0.7
+            ? `rgba(216, 74, 136, ${this.opacity})`
+            : Math.random() > 0.5
+            ? `rgba(100, 80, 200, ${this.opacity})`
+            : `rgba(140, 100, 220, ${this.opacity})`;
+    }
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+    }
+}
+
+for (let i = 0; i < 65; i++) particles.push(new Particle());
+
+function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 140) {
+                ctx.beginPath();
+                ctx.moveTo(particles[i].x, particles[i].y);
+                ctx.lineTo(particles[j].x, particles[j].y);
+                ctx.strokeStyle = `rgba(110, 80, 200, ${0.08 * (1 - dist / 140)})`;
+                ctx.lineWidth = 0.5;
+                ctx.stroke();
+            }
+        }
+        const dx = particles[i].x - mouseX;
+        const dy = particles[i].y - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 180) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.strokeStyle = `rgba(110, 80, 200, ${0.18 * (1 - dist / 180)})`;
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+        }
+    }
+}
+
+function animateBg() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => { p.update(); p.draw(); });
+    drawConnections();
+    requestAnimationFrame(animateBg);
+}
+animateBg();
+
+// ===== CURSOR DOT + TRAIL =====
+const cursorDot = document.getElementById('cursor-dot');
+const trailCount = 8;
+const trails = [];
+for (let i = 0; i < trailCount; i++) {
+    const d = document.createElement('div');
+    d.className = 'cursor-trail';
+    d.style.opacity = '0';
+    document.body.appendChild(d);
+    trails.push({ el: d, x: 0, y: 0 });
+}
+
+let trailPositions = Array(trailCount).fill({ x: 0, y: 0 });
+
+document.addEventListener('mousemove', e => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    cursorDot.style.left = e.clientX - 4 + 'px';
+    cursorDot.style.top = e.clientY - 4 + 'px';
+    trailPositions = [{ x: e.clientX, y: e.clientY }, ...trailPositions.slice(0, trailCount - 1)];
+    trails.forEach((t, i) => {
+        const pos = trailPositions[i] || trailPositions[0];
+        t.el.style.left = pos.x - 2.5 + 'px';
+        t.el.style.top = pos.y - 2.5 + 'px';
+        t.el.style.opacity = (1 - i / trailCount) * 0.38 + '';
+        t.el.style.transform = `scale(${1 - i * 0.08})`;
+    });
+});
+
+// ===== SCROLL PROGRESS =====
+const progressBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+    const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight) * 100;
+    progressBar.style.width = pct + '%';
+    document.querySelector('nav').classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// ===== SCROLL REVEAL =====
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+}, { threshold: 0.08 });
+document.querySelectorAll('section:not(.hero)').forEach(s => observer.observe(s));
+
+// ===== 3D TILT ON CARDS =====
+function addTilt(selector) {
+    document.querySelectorAll(selector).forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const r = card.getBoundingClientRect();
+            const x = e.clientX - r.left, y = e.clientY - r.top;
+            const cx = r.width / 2, cy = r.height / 2;
+            const rotX = ((y - cy) / cy) * -6;
+            const rotY = ((x - cx) / cx) * 6;
+            card.style.transform = `perspective(700px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-4px)`;
+        });
+        card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+}
+addTilt('.project-card');
+addTilt('.honor-card');
+addTilt('.lab-card');
+addTilt('.stat-card');
+
+// ===== RIPPLE ON CLICK =====
+document.querySelectorAll('.research-card, .project-card, .contact-card').forEach(card => {
+    card.addEventListener('click', e => {
+        const r = card.getBoundingClientRect();
+        const size = Math.max(r.width, r.height);
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-effect';
+        ripple.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - r.left - size/2}px;top:${e.clientY - r.top - size/2}px;`;
+        card.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 650);
+    });
+});
+
+// ===== CAT EYE TRACKING =====
+const catContainer = document.getElementById('cat-container');
+const leftPupil = document.getElementById('left-pupil');
+const rightPupil = document.getElementById('right-pupil');
+const catMessages = [
+    "meow~ ✨","purrr...","*nuzzle*","hi there! 🐾","feed me code",
+    "404: fish not found","segfault in nap()","sudo pet me","AI go brrr",
+    "import cuddles","git commit -m 'nap'","training model... 🧠","loss = 0.001 😸","yarn ball.exe",
+];
+const bubble = document.getElementById('cat-bubble');
+let lastBubbleTime = 0;
+
+document.addEventListener('mousemove', e => {
+    const catRect = catContainer.getBoundingClientRect();
+    const catCX = catRect.left + catRect.width / 2;
+    const catCY = catRect.top + catRect.height * 0.4;
+    const angle = Math.atan2(e.clientY - catCY, e.clientX - catCX);
+    const mv = 2;
+    leftPupil.setAttribute('cx', 42 + Math.cos(angle) * mv);
+    leftPupil.setAttribute('cy', 40 + Math.sin(angle) * mv);
+    rightPupil.setAttribute('cx', 58 + Math.cos(angle) * mv);
+    rightPupil.setAttribute('cy', 40 + Math.sin(angle) * mv);
+    const dist = Math.hypot(e.clientX - catCX, e.clientY - catCY);
+    if (dist < 150) {
+        catContainer.classList.add('purring');
+        const now = Date.now();
+        if (now - lastBubbleTime > 3000) {
+            bubble.textContent = catMessages[Math.floor(Math.random() * catMessages.length)];
+            lastBubbleTime = now;
+        }
+    } else {
+        catContainer.classList.remove('purring');
+    }
+});
+
+// ===== SMOOTH SCROLL =====
+document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.querySelector('nav').classList.remove('nav-active');
+        }
+    });
+});
+
+// ===== STAGGERED CARD ANIMATIONS =====
+const cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+            entry.target.style.transitionDelay = `${i * 0.07}s`;
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, { threshold: 0.05 });
+
+document.querySelectorAll('.project-card, .honor-card, .research-card, .lab-card, .skill-group, .contact-card, .stat-card, .edu-card').forEach(card => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(22px)';
+    card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    cardObserver.observe(card);
+});
+
+// ===== HERO ENTRANCE =====
+window.addEventListener('load', () => {
+    const elements = document.querySelectorAll('.hero .hero-label, .hero h1, .hero .hero-desc, .hero .hero-links');
+    elements.forEach((el, i) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        setTimeout(() => { el.style.opacity = '1'; el.style.transform = 'translateY(0)'; }, 300 + i * 200);
+    });
+});
+</script>
+</body>
+</html>
