@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,700;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css">
     <style>
         :root {
             --bg: #ece7f8;
@@ -346,6 +347,7 @@
         .edu-card h3 { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; margin-bottom: 0.25rem; }
         .edu-card .school { color: var(--text-dim); font-size: 0.9rem; font-weight: 300; }
         .edu-card .concentration { color: var(--blue); font-size: 0.8rem; font-weight: 500; margin-top: 0.3rem; }
+        .edu-meta { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); margin-top: 0.45rem; }
 
         /* ===== HONORS ===== */
         .honors-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
@@ -503,24 +505,177 @@
         }
         .lab-link:hover { gap: 0.7rem; color: var(--blue-dim); }
 
-        /* ===== SKILLS ===== */
-        .skills-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2rem; }
-        .skill-group {
+        /* ===== CERTIFICATIONS ===== */
+        .cert-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+        .cert-card {
             background: var(--bg-card);
             border: 1.5px solid var(--border);
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1.6rem;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .cert-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 0 0 12px 12px;
+            transform: scaleX(0);
+            transition: transform 0.4s;
+        }
+        .cert-card.deeplearning::after { background: linear-gradient(90deg, #0ea5e9, #6366f1); }
+        .cert-card.ibm::after { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+        .cert-card.microsoft::after { background: linear-gradient(90deg, #16a34a, #22c55e); }
+        .cert-card.coursera::after { background: linear-gradient(90deg, #0057d2, #00b0f0); }
+        .cert-card:hover::after { transform: scaleX(1); }
+        .cert-card:hover { border-color: var(--border-hover); transform: translateY(-5px); box-shadow: 0 16px 44px rgba(66,120,216,0.13); }
+        .cert-top { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem; }
+        .cert-issuer-badge {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 800; color: #fff; flex-shrink: 0;
+            letter-spacing: -0.03em;
+        }
+        .cert-issuer-badge.deeplearning { background: linear-gradient(135deg, #0ea5e9, #6366f1); }
+        .cert-issuer-badge.ibm { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
+        .cert-issuer-badge.microsoft { background: linear-gradient(135deg, #16a34a, #22c55e); }
+        .cert-issuer-badge.coursera { background: linear-gradient(135deg, #0057d2, #00b0f0); }
+        .cert-issuer-name { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+        .cert-card h3 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; line-height: 1.35; margin-bottom: 0.5rem; }
+@media (max-width: 900px) { .cert-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) { .cert-grid { grid-template-columns: 1fr; } }
+
+        /* ===== COURSES ===== */
+        .anthropic-courses-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 3rem; }
+        .anthropic-course-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.6rem;
+            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 2px 10px rgba(66,120,216,0.04);
+            position: relative;
+        }
+        .anthropic-course-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--red));
+            border-radius: 12px 12px 0 0;
+        }
+        .anthropic-course-card:hover { border-color: var(--border-hover); transform: translateY(-4px); box-shadow: 0 14px 40px rgba(66,120,216,0.12); }
+        .anthropic-course-card .ac-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+        .anthropic-course-card .ac-icon { font-size: 1.4rem; color: var(--blue); }
+        .anthropic-course-card .ac-badge { font-family: var(--font-mono); font-size: 0.62rem; background: rgba(66,120,216,0.1); color: var(--blue-dim); padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; border: 1px solid rgba(66,120,216,0.2); }
+        .anthropic-course-card h3 { font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; margin-bottom: 0.5rem; line-height: 1.3; }
+        .anthropic-course-card p { font-size: 0.78rem; color: var(--text-muted); font-weight: 300; line-height: 1.5; }
+
+        /* Course timeline */
+        .courses-section-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; margin-bottom: 2rem; color: var(--text); }
+        .course-timeline-wrapper { overflow-x: auto; padding-bottom: 1rem; }
+        .course-timeline { display: flex; flex-direction: column; gap: 2.5rem; }
+        .course-timeline-row { position: relative; }
+        .course-timeline-row .timeline-track {
+            position: relative;
+            height: 6px;
+            background: linear-gradient(90deg, var(--blue-light), var(--red-light));
+            border-radius: 3px;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        .course-timeline-row .timeline-track::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.4);
+            border-radius: 3px;
+        }
+        .timeline-dots { display: grid; gap: 0; position: absolute; top: 50%; transform: translateY(-50%); left: 0; right: 0; }
+        .timeline-dot {
+            width: 14px; height: 14px;
+            background: var(--blue);
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px var(--blue-light);
+            position: absolute;
+            top: 50%; transform: translateY(-50%);
+            flex-shrink: 0;
+        }
+        .course-cards-row { display: grid; gap: 0.8rem; }
+        .course-item {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 0.9rem 1.1rem;
             transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(66,120,216,0.04);
             text-align: center;
+        }
+        .course-item:hover { border-color: var(--blue-light); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(66,120,216,0.1); }
+        .course-item h4 { font-size: 0.8rem; font-weight: 600; color: var(--text); line-height: 1.3; margin-bottom: 0.25rem; }
+        .course-item .course-sem { font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); }
+
+        /* Semester grid */
+        .sem-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .sem-col {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 1.2rem 1.1rem;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             box-shadow: 0 2px 10px rgba(66,120,216,0.04);
         }
-        .skill-group:hover { border-color: var(--blue-light); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(66,120,216,0.1); }
-        .skill-group h3 { font-family: var(--font-mono); font-size: 0.65rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; font-weight: 600; }
-        .skill-group .skill-items { display: flex; flex-direction: column; gap: 0.5rem; }
-        .skill-group .skill-item { font-size: 0.82rem; color: var(--text-dim); font-weight: 400; }
+        .sem-col:hover { border-color: var(--border-hover); transform: translateY(-4px); box-shadow: 0 12px 32px rgba(66,120,216,0.1); }
+        .sem-col-adv { border-top: 2.5px solid var(--red-light); }
+        .sem-col-adv:hover { border-color: var(--red-light); border-top-color: var(--red); box-shadow: 0 12px 32px rgba(216,74,136,0.1); }
+        .sem-label {
+            font-family: var(--font-mono);
+            font-size: 0.63rem;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .sem-label-adv { color: var(--red-dim); }
+        .sem-courses { display: flex; flex-direction: column; gap: 0.35rem; }
+        .sem-course {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-weight: 400;
+            padding: 0.2rem 0 0.2rem 1rem;
+            position: relative;
+            line-height: 1.4;
+        }
+        .sem-course::before { content: '▹'; position: absolute; left: 0; color: var(--blue); font-size: 0.7rem; }
+        .sem-col-adv .sem-course::before { color: var(--red-dim); }
+        @media (max-width: 900px) { .sem-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .sem-grid { grid-template-columns: 1fr; } }
+
+        /* ===== CERT ANTHROPIC ===== */
+        .cert-card.anthropic::after { background: linear-gradient(90deg, var(--red), var(--blue)); }
+        .cert-issuer-badge.anthropic { background: linear-gradient(135deg, var(--red-dim), var(--blue)); }
+
+        /* ===== SKILLS ===== */
+        .skill-category-block { margin-bottom: 2.5rem; }
+        .skill-category-label { font-family: var(--font-mono); font-size: 0.7rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.5rem; }
+        .skill-category-label i { font-size: 0.85rem; }
+        .skill-icon-grid { display: flex; flex-wrap: wrap; gap: 0.85rem; }
+        .skill-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.55rem; background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 12px; padding: 1.1rem 1rem; min-width: 90px; transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1); box-shadow: 0 2px 8px rgba(66,120,216,0.04); cursor: default; }
+        .skill-tile i { font-size: 1.8rem; line-height: 1; }
+        .skill-tile span { font-size: 0.72rem; font-weight: 500; color: var(--text-dim); white-space: nowrap; text-align: center; }
+        .skill-tile:hover { border-color: var(--blue-light); transform: translateY(-4px); box-shadow: 0 10px 28px rgba(66,120,216,0.12); }
 
         /* ===== CONTACT ===== */
-        .contact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+        .contact-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2rem; }
         .contact-card {
             background: var(--bg-card);
             border: 1.5px solid var(--border);
@@ -651,14 +806,17 @@
         }
 
         /* ===== RESPONSIVE ===== */
+
+        /* --- Tablet: up to 900px --- */
         @media (max-width: 900px) {
             .about-grid { grid-template-columns: 1fr; }
             .honors-grid { grid-template-columns: 1fr 1fr; }
             .projects-grid { grid-template-columns: 1fr; }
             .labs-grid { grid-template-columns: 1fr; }
-            .skills-container { grid-template-columns: repeat(3, 1fr); }
-            .contact-grid { grid-template-columns: 1fr 1fr; }
+            .contact-grid { grid-template-columns: repeat(3, 1fr); }
         }
+
+        /* --- Mobile: up to 768px --- */
         @media (max-width: 768px) {
             nav { padding: 1rem 1.5rem; }
             .nav-links { display: none; }
@@ -674,12 +832,41 @@
             }
             .hamburger { display: block; }
             .container { padding: 0 1.5rem; }
-            .hero h1 { font-size: 2.5rem; }
+            .hero { padding-top: 4rem; }
+            .hero h1 { font-size: 2.4rem; }
+            .hero-desc { font-size: 1rem; }
+            .section-header { margin-bottom: 2.5rem; }
+            .section-header h2 { font-size: 2rem; }
             .honors-grid { grid-template-columns: 1fr; }
-            .skills-container { grid-template-columns: 1fr 1fr; }
-            .contact-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: repeat(2, 1fr); }
+            .skill-tile { min-width: 80px; padding: 0.9rem 0.75rem; }
+            .skill-tile i { font-size: 1.5rem; }
             section { padding: 5rem 0; }
             #cat-container { bottom: 10px; right: 15px; width: 70px; height: 70px; }
+        }
+
+        /* --- Small phones: up to 480px --- */
+        @media (max-width: 480px) {
+            .container { padding: 0 1rem; }
+            .hero { padding-top: 3rem; padding-bottom: 3rem; }
+            .hero h1 { font-size: 1.9rem; letter-spacing: -0.01em; }
+            .hero-desc { font-size: 0.92rem; }
+            .hero-links { gap: 0.75rem; }
+            .hero-links a { font-size: 0.8rem; padding: 0.6rem 1rem; }
+            .section-header h2 { font-size: 1.7rem; }
+            .section-header { margin-bottom: 2rem; }
+            .about-stats { grid-template-columns: 1fr 1fr; gap: 1rem; }
+            .stat-num { font-size: 2rem; }
+            .honors-grid { grid-template-columns: 1fr; }
+            .cert-grid { grid-template-columns: 1fr; }
+            .contact-grid { grid-template-columns: 1fr 1fr; }
+            .contact-card { padding: 1.4rem 1rem; }
+            .skill-tile { min-width: 72px; padding: 0.75rem 0.6rem; }
+            .skill-tile i { font-size: 1.35rem; }
+            .skill-tile span { font-size: 0.65rem; }
+            .skill-category-block { margin-bottom: 2rem; }
+            .edu-card { padding: 1.2rem 1rem; }
+            section { padding: 4rem 0; }
         }
     </style>
 </head>
@@ -754,6 +941,7 @@
         <a href="#research">Research</a>
         <a href="#projects">Projects</a>
         <a href="#labs">Labs</a>
+        <a href="#courses">Courses</a>
         <a href="#skills">Skills</a>
         <a href="#contact">Contact</a>
     </div>
@@ -774,6 +962,7 @@
         <a href="https://github.com/Jourialdagh" target="_blank"><i class="fab fa-github"></i> GitHub</a>
         <a href="https://www.linkedin.com/in/jouri-aldaghma-b7a8b8307/" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
         <a href="https://wa.me/966555886994" target="_blank"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank"><i class="fab fa-researchgate"></i> ResearchGate</a>
     </div>
     <div class="scroll-hint">
         <span>Scroll</span>
@@ -801,14 +990,6 @@
                 <div class="stat-num" data-count="6" data-suffix="+">6+</div>
                 <div class="stat-label">Tech Projects</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-num">~98%</div>
-                <div class="stat-label">IoT Detection Acc.</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-num">1st</div>
-                <div class="stat-label">Place UGRF#5</div>
-            </div>
         </div>
     </div>
 </section>
@@ -825,13 +1006,15 @@
             <h3>Bachelor of Science in Computer Science</h3>
             <div class="school">Effat University</div>
             <div class="concentration">AI Concentration</div>
+            <div class="edu-meta">2022 – 2026 &nbsp;·&nbsp; GPA: 3.96 / 4.0</div>
         </div>
     </div>
     <div class="edu-card">
         <div class="edu-icon"><i class="fas fa-school"></i></div>
         <div>
-            <h3>High School Diploma</h3>
+            <h3>American High School Diploma</h3>
             <div class="school">Edugate International School</div>
+            <div class="edu-meta">2018 – 2022 &nbsp;·&nbsp; GPA: 4.0 / 4.0</div>
         </div>
     </div>
 </section>
@@ -921,7 +1104,7 @@
             </div>
             <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </a>
-        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="research-card">
+        <a href="https://www.researchgate.net/publication/387682726_AI-Driven_Innovations_in_Healthcare_Advancing_Smart_Diagnostics_and_Treatment" target="_blank" class="research-card">
             <div class="r-icon"><i class="fas fa-heartbeat"></i></div>
             <div>
                 <h3>AI-Driven Innovations in Healthcare: Advancing Smart Diagnostics and Treatment</h3>
@@ -929,7 +1112,7 @@
             </div>
             <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </a>
-        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="research-card">
+        <a href="https://www.researchgate.net/publication/391484593_Security_Mechanisms_in_Modern_Software_Systems" target="_blank" class="research-card">
             <div class="r-icon"><i class="fas fa-code"></i></div>
             <div>
                 <h3>Security Mechanisms in Modern Software Systems</h3>
@@ -937,7 +1120,7 @@
             </div>
             <span class="arrow"><i class="fas fa-arrow-right"></i></span>
         </a>
-        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="research-card">
+        <a href="https://www.researchgate.net/publication/404398874_An_Adaptive_Adversarial-Resilient_Big_Data_Pipeline_for_Cyber_Threat_Intelligence_Classification" target="_blank" class="research-card">
             <div class="r-icon"><i class="fas fa-database"></i></div>
             <div>
                 <h3>An Adaptive Adversarial-Resilient Big Data Pipeline for Cyber Threat Intelligence Classification</h3>
@@ -957,6 +1140,42 @@
         <p>Implementations and hands-on engineering</p>
     </div>
     <div class="projects-grid">
+        <a href="https://github.com/Jourialdagh/AegisAI-LLM-Driven-Pentest-Framework" target="_blank" class="project-card" style="border-color: var(--red-light); background: linear-gradient(135deg, var(--bg-card) 80%, rgba(216,74,136,0.04));">
+            <div class="p-top">
+                <div class="p-icon" style="background: var(--red-glow); color: var(--red);"><i class="fas fa-graduation-cap"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <div style="margin-bottom:0.5rem;">
+                <span class="badge" style="background: linear-gradient(135deg, var(--red-dim), var(--red)); font-size:0.62rem; padding:0.2rem 0.6rem; border-radius:20px; color:#fff; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Graduation Project</span>
+            </div>
+            <h3>AegisAI — LLM-Driven Penetration Testing Framework</h3>
+            <p class="p-desc">Automated AI penetration testing platform using LLMs as a red-team agent in a Digital Twin environment to assess and harden AI/ML systems against adversarial attacks.</p>
+            <div class="tags">
+                <span class="tag">Python</span><span class="tag">LLM</span><span class="tag">RAG</span><span class="tag">Digital Twin</span><span class="tag">FastAPI</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/TouristTripPlanner_DS2025" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>Tourist Trip Planner</h3>
+            <p class="p-desc">Real-world travel planning system in C++ using Graphs and Priority Queues. Lets users select countries, cities, and interests to generate a full itinerary with estimated time, cost, and route.</p>
+            <div class="tags">
+                <span class="tag">C++</span><span class="tag">Graphs</span><span class="tag">Priority Queue</span><span class="tag">GUI</span>
+            </div>
+        </a>
+        <a href="https://github.com/Jourialdagh/hajj-buddy-ai" target="_blank" class="project-card">
+            <div class="p-top">
+                <div class="p-icon"><i class="fas fa-mosque"></i></div>
+                <span class="p-link"><i class="fab fa-github"></i></span>
+            </div>
+            <h3>Hajj Buddy AI</h3>
+            <p class="p-desc">Smart Pilgrimage Companion powered by RAG + Gemini. An intelligent assistant guiding pilgrims through Hajj and Umrah with authentic, context-aware Islamic guidance and zero hallucinations.</p>
+            <div class="tags">
+                <span class="tag">RAG</span><span class="tag">Gemini</span><span class="tag">JavaScript</span><span class="tag">Node.js</span>
+            </div>
+        </a>
         <a href="https://github.com/Jourialdagh/SecureTwin-Cybersecurity-Digital-Twin-Platform" target="_blank" class="project-card">
             <div class="p-top">
                 <div class="p-icon"><i class="fas fa-shield-virus"></i></div>
@@ -1099,7 +1318,91 @@
                 <li>Real-world analysis: 51K-row Global Superstore CSV</li>
             </ul>
             <div class="lab-tools">Hadoop · HDFS · MapReduce · YARN · Python · Linux</div>
-            <a href="https://github.com/Jourialdagh/Big-Data-Analytics-CS4074" target="_blank" class="lab-link"><i class="fab fa-github"></i> View on GitHub <i class="fas fa-arrow-right" style="font-size:0.65rem"></i></a>
+            <a href="https://github.com/Jourialdagh/CS4074-Lab3-MapReduce" target="_blank" class="lab-link"><i class="fab fa-github"></i> View on GitHub <i class="fas fa-arrow-right" style="font-size:0.65rem"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== COURSES ===== -->
+<section id="courses" class="container">
+    <div class="section-header">
+        <div class="section-label"><span class="num">07</span> <span class="line"></span> Courses</div>
+        <h2>Learning Journey</h2>
+        <p>Professional certifications and academic coursework</p>
+    </div>
+
+    <!-- Professional Certifications -->
+    <div class="courses-section-title"><i class="fas fa-certificate" style="color:var(--blue);margin-right:0.6rem;font-size:1rem;"></i>Professional Certifications</div>
+    <div class="cert-grid" style="margin-bottom:3rem;">
+        <div class="cert-card deeplearning">
+            <div class="cert-top">
+                <div class="cert-issuer-badge deeplearning">DL</div>
+                <span class="cert-issuer-name">DeepLearning.AI</span>
+            </div>
+            <h3>Neural Networks and Deep Learning</h3>
+        </div>
+        <div class="cert-card deeplearning">
+            <div class="cert-top">
+                <div class="cert-issuer-badge deeplearning">DL</div>
+                <span class="cert-issuer-name">DeepLearning.AI</span>
+            </div>
+            <h3>Linear Algebra for Machine Learning and Data Science</h3>
+        </div>
+        <div class="cert-card deeplearning">
+            <div class="cert-top">
+                <div class="cert-issuer-badge deeplearning">DL</div>
+                <span class="cert-issuer-name">DeepLearning.AI</span>
+            </div>
+            <h3>Calculus for Machine Learning and Data Science</h3>
+        </div>
+        <div class="cert-card coursera">
+            <div class="cert-top">
+                <div class="cert-issuer-badge coursera">CO</div>
+                <span class="cert-issuer-name">Coursera</span>
+            </div>
+            <h3>Introduction to Artificial Intelligence (AI)</h3>
+        </div>
+        <div class="cert-card ibm">
+            <div class="cert-top">
+                <div class="cert-issuer-badge ibm">IBM</div>
+                <span class="cert-issuer-name">IBM</span>
+            </div>
+            <h3>Generative AI: Introduction and Applications</h3>
+        </div>
+        <div class="cert-card microsoft">
+            <div class="cert-top">
+                <div class="cert-issuer-badge microsoft">MS</div>
+                <span class="cert-issuer-name">Microsoft</span>
+            </div>
+            <h3>Data Analysis and Visualization with Power BI</h3>
+        </div>
+        <div class="cert-card anthropic">
+            <div class="cert-top">
+                <div class="cert-issuer-badge anthropic">AN</div>
+                <span class="cert-issuer-name">Anthropic</span>
+            </div>
+            <h3>Claude 101</h3>
+        </div>
+        <div class="cert-card anthropic">
+            <div class="cert-top">
+                <div class="cert-issuer-badge anthropic">AN</div>
+                <span class="cert-issuer-name">Anthropic</span>
+            </div>
+            <h3>Claude Code 101</h3>
+        </div>
+        <div class="cert-card anthropic">
+            <div class="cert-top">
+                <div class="cert-issuer-badge anthropic">AN</div>
+                <span class="cert-issuer-name">Anthropic</span>
+            </div>
+            <h3>Model Context Protocol: Advanced Topics</h3>
+        </div>
+        <div class="cert-card anthropic">
+            <div class="cert-top">
+                <div class="cert-issuer-badge anthropic">AN</div>
+                <span class="cert-issuer-name">Anthropic</span>
+            </div>
+            <h3>AI Fluency: Framework &amp; Foundations</h3>
         </div>
     </div>
 </section>
@@ -1107,61 +1410,71 @@
 <!-- ===== SKILLS ===== -->
 <section id="skills" class="container">
     <div class="section-header">
-        <div class="section-label"><span class="num">07</span> <span class="line"></span> Skills</div>
+        <div class="section-label"><span class="num">08</span> <span class="line"></span> Skills</div>
         <h2>Technical Expertise</h2>
     </div>
-    <div class="skills-container">
-        <div class="skill-group">
-            <h3>Programming</h3>
-            <div class="skill-items">
-                <span class="skill-item">Python</span>
-                <span class="skill-item">C++</span>
-                <span class="skill-item">Java</span>
-            </div>
+
+    <div class="skill-category-block">
+        <div class="skill-category-label"><i class="fas fa-brain"></i> AI & Machine Learning</div>
+        <div class="skill-icon-grid">
+            <div class="skill-tile"><i class="devicon-python-plain colored"></i><span>Python</span></div>
+            <div class="skill-tile"><i class="devicon-pytorch-original colored"></i><span>PyTorch</span></div>
+            <div class="skill-tile"><i class="devicon-tensorflow-original colored"></i><span>TensorFlow</span></div>
+            <div class="skill-tile"><i class="devicon-scikitlearn-plain colored"></i><span>Scikit-learn</span></div>
+            <div class="skill-tile"><i class="fas fa-robot" style="color:var(--blue)"></i><span>HuggingFace</span></div>
+            <div class="skill-tile"><i class="fas fa-language" style="color:var(--blue)"></i><span>NLP</span></div>
+            <div class="skill-tile"><i class="fas fa-shield-alt" style="color:var(--red)"></i><span>Adversarial ML</span></div>
         </div>
-        <div class="skill-group">
-            <h3>AI / ML</h3>
-            <div class="skill-items">
-                <span class="skill-item">Machine Learning</span>
-                <span class="skill-item">Deep Learning</span>
-                <span class="skill-item">NLP</span>
-                <span class="skill-item">Transformers</span>
-                <span class="skill-item">Adversarial ML</span>
-            </div>
+    </div>
+
+    <div class="skill-category-block">
+        <div class="skill-category-label"><i class="fas fa-chart-line"></i> Data Science</div>
+        <div class="skill-icon-grid">
+            <div class="skill-tile"><i class="devicon-pandas-original colored"></i><span>Pandas</span></div>
+            <div class="skill-tile"><i class="devicon-numpy-plain colored"></i><span>NumPy</span></div>
+            <div class="skill-tile"><i class="fas fa-chart-area" style="color:var(--blue)"></i><span>Matplotlib</span></div>
+            <div class="skill-tile"><i class="fas fa-chart-bar" style="color:var(--blue)"></i><span>Seaborn</span></div>
+            <div class="skill-tile"><i class="devicon-jupyter-plain colored"></i><span>Jupyter</span></div>
         </div>
-        <div class="skill-group">
-            <h3>Cybersecurity</h3>
-            <div class="skill-items">
-                <span class="skill-item">IDS</span>
-                <span class="skill-item">IoT Security</span>
-                <span class="skill-item">Threat Modeling</span>
-                <span class="skill-item">Secure AI</span>
-            </div>
+    </div>
+
+    <div class="skill-category-block">
+        <div class="skill-category-label"><i class="fas fa-user-shield"></i> Cybersecurity</div>
+        <div class="skill-icon-grid">
+            <div class="skill-tile"><i class="fas fa-wifi" style="color:var(--blue)"></i><span>IoT Security</span></div>
+            <div class="skill-tile"><i class="fas fa-project-diagram" style="color:var(--blue)"></i><span>Threat Modeling</span></div>
+            <div class="skill-tile"><i class="fas fa-clone" style="color:var(--blue)"></i><span>Digital Twin</span></div>
+            <div class="skill-tile"><i class="fas fa-eye" style="color:var(--red)"></i><span>Intrusion Detection</span></div>
+            <div class="skill-tile"><i class="fas fa-lock" style="color:var(--red)"></i><span>Adversarial Robustness</span></div>
         </div>
-        <div class="skill-group">
-            <h3>Data</h3>
-            <div class="skill-items">
-                <span class="skill-item">Pandas</span>
-                <span class="skill-item">NumPy</span>
-                <span class="skill-item">Matplotlib</span>
-                <span class="skill-item">Apache Spark</span>
-            </div>
+    </div>
+
+    <div class="skill-category-block">
+        <div class="skill-category-label"><i class="fas fa-server"></i> Systems & Networks</div>
+        <div class="skill-icon-grid">
+            <div class="skill-tile"><i class="devicon-cplusplus-plain colored"></i><span>C++</span></div>
+            <div class="skill-tile"><i class="devicon-linux-plain"></i><span>Linux</span></div>
+            <div class="skill-tile"><i class="devicon-hadoop-plain colored"></i><span>Hadoop</span></div>
+            <div class="skill-tile"><i class="fas fa-network-wired" style="color:var(--blue)"></i><span>Cisco</span></div>
         </div>
-        <div class="skill-group">
-            <h3>Tools</h3>
-            <div class="skill-items">
-                <span class="skill-item">Git</span>
-                <span class="skill-item">Jupyter</span>
-                <span class="skill-item">Cisco</span>
-                <span class="skill-item">Linux</span>
-            </div>
+    </div>
+
+    <div class="skill-category-block" style="margin-bottom:0;">
+        <div class="skill-category-label"><i class="fas fa-code"></i> Web & Tools</div>
+        <div class="skill-icon-grid">
+            <div class="skill-tile"><i class="devicon-html5-plain colored"></i><span>HTML / CSS</span></div>
+            <div class="skill-tile"><i class="devicon-javascript-plain colored"></i><span>JavaScript</span></div>
+            <div class="skill-tile"><i class="devicon-php-plain colored"></i><span>PHP</span></div>
+            <div class="skill-tile"><i class="devicon-git-plain colored"></i><span>Git</span></div>
+            <div class="skill-tile"><i class="fas fa-chart-pie" style="color:var(--blue)"></i><span>Power BI</span></div>
+            <div class="skill-tile"><i class="fas fa-book-open" style="color:var(--blue)"></i><span>Google Colab</span></div>
         </div>
     </div>
 </section>
 
 <!-- ===== CV ===== -->
 <section class="container cv-section">
-    <a href="your-cv.pdf" class="cv-btn" download>
+    <a href="Jouri_Aldaghma_CV.pdf" class="cv-btn" download>
         <i class="fas fa-download"></i> Download CV
     </a>
 </section>
@@ -1169,7 +1482,7 @@
 <!-- ===== CONTACT ===== -->
 <section id="contact" class="container">
     <div class="section-header">
-        <div class="section-label"><span class="num">08</span> <span class="line"></span> Contact</div>
+        <div class="section-label"><span class="num">09</span> <span class="line"></span> Contact</div>
         <h2>Get in Touch</h2>
         <p>Let's connect and build something impactful</p>
     </div>
@@ -1192,6 +1505,11 @@
         <a href="https://www.linkedin.com/in/jouri-aldaghma-b7a8b8307/" target="_blank" class="contact-card">
             <div class="c-icon"><i class="fab fa-linkedin"></i></div>
             <h3>LinkedIn</h3>
+            <p>Jouri Aldaghma</p>
+        </a>
+        <a href="https://www.researchgate.net/profile/Jouri-Aldaghma" target="_blank" class="contact-card">
+            <div class="c-icon"><i class="fab fa-researchgate"></i></div>
+            <h3>ResearchGate</h3>
             <p>Jouri Aldaghma</p>
         </a>
     </div>
@@ -1419,7 +1737,7 @@ const cardObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.05 });
 
-document.querySelectorAll('.project-card, .honor-card, .research-card, .lab-card, .skill-group, .contact-card, .stat-card, .edu-card').forEach(card => {
+document.querySelectorAll('.project-card, .honor-card, .research-card, .lab-card, .skill-tile, .contact-card, .stat-card, .edu-card, .course-item, .cert-card').forEach(card => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(22px)';
     card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
